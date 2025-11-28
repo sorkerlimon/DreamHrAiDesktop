@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DreamHRAi - HR Management System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        .app-container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 250px;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .sidebar-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+
+        .nav-menu {
+            flex: 1;
+        }
+
+        .nav-item {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .nav-item.active {
+            background: rgba(102, 126, 234, 0.8);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .nav-item i {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .content-area {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 30px;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .page-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .main-content {
+            text-align: center;
+            animation: fadeIn 1s ease-in;
+        }
+
+        .logo {
+            font-size: 4rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.3);
+            background: linear-gradient(45deg, #fff, #f0f0f0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 40px;
+        }
+
+        .dashboard-btn {
+            padding: 15px 30px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 30px;
+        }
+
+        .dashboard-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .time-buttons {
+            display: none;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            max-width: 400px;
+            margin: 0 auto;
+            animation: fadeInUp 0.5s ease;
+        }
+
+        .time-btn {
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .time-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .time-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .time-btn.success {
+            background: rgba(46, 204, 113, 0.8);
+            border-color: rgba(46, 204, 113, 0.9);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .page {
+            display: none;
+            animation: fadeInUp 0.3s ease;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .dashboard-controls {
+            text-align: center;
+        }
+
+        /* History Page Styles */
+        .history-container {
+            max-width: 100%;
+        }
+
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .history-header h3 {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .filter-controls select {
+            padding: 8px 12px;
+            border-radius: 5px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .history-table table {
+            width: 100%;
+            border-collapse: collapse;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .history-table th,
+        .history-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .history-table th {
+            background: rgba(102, 126, 234, 0.8);
+            color: white;
+            font-weight: 600;
+        }
+
+        /* Tasks Page Styles */
+        .tasks-container {
+            max-width: 100%;
+        }
+
+        .tasks-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tasks-header h3 {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .add-task-btn {
+            padding: 10px 20px;
+            background: rgba(46, 204, 113, 0.8);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .add-task-btn:hover {
+            background: rgba(46, 204, 113, 1);
+        }
+
+        .no-tasks {
+            text-align: center;
+            padding: 40px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 500px;
+            backdrop-filter: blur(10px);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .form-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .form-actions button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .form-actions button:first-child {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .form-actions button:last-child {
+            background: #3498db;
+            color: white;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">DreamHRAi</div>
+                <div class="sidebar-subtitle">HR Management System</div>
+            </div>
+
+            <div class="nav-menu">
+                <button class="nav-item active" id="dashboardNav">
+                    <i>📊</i> Dashboard
+                </button>
+                <button class="nav-item" id="historyNav">
+                    <i>📋</i> History
+                </button>
+                <button class="nav-item" id="tasksNav">
+                    <i>✅</i> Tasks
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <div class="content-area">
+                <!-- Dashboard Page -->
+                <div id="dashboardPage" class="page active">
+                    <h1 class="page-title">Dashboard</h1>
+
+                    <div class="dashboard-controls">
+                        <button class="dashboard-btn" id="dashboardBtn">Show Time Tracking</button>
+
+                        <div class="time-buttons" id="timeButtons" style="display: none;">
+                            <button class="time-btn" id="timeInBtn">⏰ Time In</button>
+                            <button class="time-btn" id="timeOutBtn">⏱️ Time Out</button>
+                            <button class="time-btn" id="breakInBtn">☕ Break In</button>
+                            <button class="time-btn" id="breakOutBtn">🏃 Break Out</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- History Page -->
+                <div id="historyPage" class="page">
+                    <h1 class="page-title">Time History</h1>
+                    <div id="historyContent">
+                        <p>Loading history...</p>
+                    </div>
+                </div>
+
+                <!-- Tasks Page -->
+                <div id="tasksPage" class="page">
+                    <h1 class="page-title">Task Management</h1>
+                    <div id="tasksContent">
+                        <p>Loading tasks...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Main application functionality for DreamHRAi
+        document.addEventListener('DOMContentLoaded', function() {
+            // Navigation elements
+            const dashboardNav = document.getElementById('dashboardNav');
+            const historyNav = document.getElementById('historyNav');
+            const tasksNav = document.getElementById('tasksNav');
+
+            // Page elements
+            const dashboardPage = document.getElementById('dashboardPage');
+            const historyPage = document.getElementById('historyPage');
+            const tasksPage = document.getElementById('tasksPage');
+
+            // Dashboard elements
+            const dashboardBtn = document.getElementById('dashboardBtn');
+            const timeButtons = document.getElementById('timeButtons');
+            const timeInBtn = document.getElementById('timeInBtn');
+            const timeOutBtn = document.getElementById('timeOutBtn');
+            const breakInBtn = document.getElementById('breakInBtn');
+            const breakOutBtn = document.getElementById('breakOutBtn');
+
+            let isDashboardOpen = false;
+
+            // Navigation event listeners
+            dashboardNav.addEventListener('click', () => switchPage('dashboard'));
+            historyNav.addEventListener('click', () => switchPage('history'));
+            tasksNav.addEventListener('click', () => switchPage('tasks'));
+
+            function switchPage(pageName) {
+                // Remove active class from all nav items
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+                // Load the appropriate HTML file
+                switch(pageName) {
+                    case 'dashboard':
+                        dashboardNav.classList.add('active');
+                        // Dashboard is already loaded (index.html)
+                        break;
+                    case 'history':
+                        historyNav.classList.add('active');
+                        window.location.href = 'history.html';
+                        break;
+                    case 'tasks':
+                        tasksNav.classList.add('active');
+                        window.location.href = 'tasks.html';
+                        break;
+                }
+            }
+
+            // Load History Page
+            function loadHistoryPage() {
+                const historyContent = document.getElementById('historyContent');
+                historyContent.innerHTML = `
+                    <div class="history-container">
+                        <div class="history-header">
+                            <h3>Time Tracking History</h3>
+                            <div class="filter-controls">
+                                <select id="historyFilter">
+                                    <option value="all">All Records</option>
+                                    <option value="today">Today</option>
+                                    <option value="week">This Week</option>
+                                    <option value="month">This Month</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="history-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>Action</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; padding: 20px;">
+                                            <em>No time tracking records found</em>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+
+                // Add filter functionality
+                document.getElementById('historyFilter').addEventListener('change', function(e) {
+                    filterHistory(e.target.value);
+                });
+            }
+
+            // Load Tasks Page
+            function loadTasksPage() {
+                const tasksContent = document.getElementById('tasksContent');
+                tasksContent.innerHTML = `
+                    <div class="tasks-container">
+                        <div class="tasks-header">
+                            <h3>Task Management</h3>
+                            <button class="add-task-btn" id="addTaskBtn">+ Add New Task</button>
+                        </div>
+                        <div class="tasks-list" id="tasksList">
+                            <div class="no-tasks">
+                                <em>No tasks found. Click "Add New Task" to create one.</em>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                // Add task button functionality
+                document.getElementById('addTaskBtn').addEventListener('click', showAddTaskModal);
+            }
+
+            function filterHistory(filter) {
+                // This would normally filter actual data
+                const tbody = document.getElementById('historyTableBody');
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;"><em>Loading filtered results...</em></td></tr>';
+
+                setTimeout(() => {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;"><em>No records found for selected filter</em></td></tr>';
+                }, 500);
+            }
+
+            function showAddTaskModal() {
+                const modal = document.createElement('div');
+                modal.className = 'modal';
+                modal.innerHTML = `
+                    <div class="modal-content">
+                        <h3>Add New Task</h3>
+                        <form id="addTaskForm">
+                            <div class="form-group">
+                                <label>Task Name:</label>
+                                <input type="text" id="taskName" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Description:</label>
+                                <textarea id="taskDesc" rows="3"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label>Priority:</label>
+                                <select id="taskPriority">
+                                    <option value="low">Low</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" onclick="this.closest('.modal').remove()">Cancel</button>
+                                <button type="submit">Create Task</button>
+                            </div>
+                        </form>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                document.getElementById('addTaskForm').addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    // Handle task creation here
+                    modal.remove();
+                    showNotification('Task created successfully!', 'success');
+                });
+            }
+
+            // Dashboard button click handler
+            dashboardBtn.addEventListener('click', function() {
+                if (isDashboardOpen) {
+                    // Hide time buttons
+                    timeButtons.style.display = 'none';
+                    dashboardBtn.textContent = 'Show Time Tracking';
+                    isDashboardOpen = false;
+                } else {
+                    // Show time buttons
+                    timeButtons.style.display = 'grid';
+                    dashboardBtn.textContent = 'Hide Time Tracking';
+                    isDashboardOpen = true;
+                }
+            });
+
+            // Time tracking button handlers
+            timeInBtn.addEventListener('click', function() {
+                showNotification('⏰ Time In recorded successfully!', 'success');
+                timeInBtn.classList.add('success');
+                setTimeout(() => timeInBtn.classList.remove('success'), 2000);
+            });
+
+            timeOutBtn.addEventListener('click', function() {
+                showNotification('⏱️ Time Out recorded successfully!', 'success');
+                timeOutBtn.classList.add('success');
+                setTimeout(() => timeOutBtn.classList.remove('success'), 2000);
+            });
+
+            breakInBtn.addEventListener('click', function() {
+                showNotification('☕ Break In recorded successfully!', 'success');
+                breakInBtn.classList.add('success');
+                setTimeout(() => breakInBtn.classList.remove('success'), 2000);
+            });
+
+            breakOutBtn.addEventListener('click', function() {
+                showNotification('🏃 Break Out recorded successfully!', 'success');
+                breakOutBtn.classList.add('success');
+                setTimeout(() => breakOutBtn.classList.remove('success'), 2000);
+            });
+
+            function showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = 'notification';
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <p>${message}</p>
+                        <button onclick="this.parentElement.parentElement.remove()">OK</button>
+                    </div>
+                `;
+
+                notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: ${type === 'success' ? 'rgba(46, 204, 113, 0.95)' : 'rgba(102, 126, 234, 0.95)'};
+                    color: white;
+                    padding: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                    z-index: 1000;
+                    animation: slideIn 0.3s ease;
+                    max-width: 300px;
+                `;
+
+                document.body.appendChild(notification);
+
+                // Auto remove after 3 seconds
+                setTimeout(() => {
+                    if (notification.parentElement) {
+                        notification.remove();
+                    }
+                }, 3000);
+            }
+        });
+
+        // Add CSS animation for notifications
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            .notification-content {
+                text-align: center;
+            }
+            .notification-content p {
+                margin-bottom: 15px;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            .notification-content button {
+                padding: 8px 16px;
+                background: rgba(255,255,255,0.2);
+                border: 1px solid rgba(255,255,255,0.3);
+                border-radius: 5px;
+                color: white;
+                cursor: pointer;
+                font-size: 14px;
+            }
+            .notification-content button:hover {
+                background: rgba(255,255,255,0.3);
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+
+    <!-- Load Dashboard JavaScript -->
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

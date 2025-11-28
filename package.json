@@ -1,0 +1,45 @@
+{
+  "name": "dreamhrai",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "dist": "electron-builder",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "electron",
+    "dreamhrai",
+    "desktop-app"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "DreamHRAi - HR Management Desktop Application",
+  "devDependencies": {
+    "electron": "^39.2.4",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.dreamhrai.app",
+    "productName": "DreamHRAi",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "DreamHRAi"
+    }
+  },
+  "dependencies": {
+    "screenshot-desktop": "^1.15.3"
+  }
+}
