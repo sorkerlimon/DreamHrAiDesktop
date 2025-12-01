@@ -1,0 +1,85 @@
+{
+  "timestamp": "2025-12-01T10:02:22.877Z",
+  "platform": "win32",
+  "summary": {
+    "totalApplications": 50,
+    "categories": {
+      "Browser": 6,
+      "Database": 2,
+      "Application": 29,
+      "Communication": 3,
+      "Office": 3,
+      "Development": 2,
+      "Utilities": 4,
+      "Other Apps": 1
+    }
+  },
+  "applications": {
+    "Browser": [
+      "BraveCrashHandler.exe",
+      "BraveCrashHandler64.exe",
+      "msedgewebview2.exe",
+      "brave.exe",
+      "chrome.exe",
+      "msedge.exe"
+    ],
+    "Database": [
+      "mysqld.exe",
+      "MySQLWorkbench.exe"
+    ],
+    "Application": [
+      "igfxEM.exe",
+      "explorer.exe",
+      "Widgets.exe",
+      "ctfmon.exe",
+      "LockApp.exe",
+      "SecurityHealthSystray.exe",
+      "OneDrive.exe",
+      "GoogleDriveFS.exe",
+      "crashpad_handler.exe",
+      "PushNotificationsLongRunningTask.exe",
+      "FileCoAuth.exe",
+      "UserOOBEBroker.exe",
+      "winbox64.exe",
+      "Termius.exe",
+      "Notepad.exe",
+      "wslrelay.exe",
+      "msrdc.exe",
+      "wsl.exe",
+      "MobaXterm.exe",
+      "XWin_MobaX.exe",
+      "MoTTYnew.exe",
+      "powershell.exe",
+      "node.exe",
+      "Taskmgr.exe",
+      "pet.exe",
+      "MobaSCPRinew.exe",
+      "cmd.exe",
+      "electron.exe",
+      "tasklist.exe"
+    ],
+    "Communication": [
+      "msteams.exe",
+      "ChatGPT.exe",
+      "Slack.exe"
+    ],
+    "Office": [
+      "wpscloudsvr.exe",
+      "wps.exe",
+      "wpscenter.exe"
+    ],
+    "Development": [
+      "Cursor.exe",
+      "Code.exe"
+    ],
+    "Utilities": [
+      "com.docker.backend.exe",
+      "com.docker.dev-envs.exe",
+      "com.docker.build.exe",
+      "Docker Desktop.exe"
+    ],
+    "Other Apps": [
+      "Asana.exe"
+    ]
+  }
+}

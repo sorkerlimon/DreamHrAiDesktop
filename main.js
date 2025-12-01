@@ -2,6 +2,8 @@ const { app, BrowserWindow, dialog, ipcMain, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs');
 const screenshot = require('screenshot-desktop');
+const ProcessMonitor = require('./src/js/process-monitor');
+const ChromeHistoryMonitor = require('./src/js/chrome-history-monitor');
 
 function createWindow() {
   // Create the browser window
@@ -73,6 +75,48 @@ function createWindow() {
 
     } catch (error) {
       console.error('Screenshot failed:', error);
+      throw error;
+    }
+  });
+
+  // Handle process monitoring request
+  ipcMain.handle('monitor-processes', async () => {
+    try {
+      console.log('Process monitoring requested...');
+
+      const processMonitor = new ProcessMonitor();
+      const result = await processMonitor.monitorAndReport();
+
+      console.log('Process monitoring completed successfully');
+
+      return {
+        success: true,
+        data: result
+      };
+
+    } catch (error) {
+      console.error('Process monitoring failed:', error);
+      throw error;
+    }
+  });
+
+  // Handle Chrome history monitoring request
+  ipcMain.handle('monitor-chrome-history', async () => {
+    try {
+      console.log('Chrome history monitoring requested...');
+
+      const chromeMonitor = new ChromeHistoryMonitor();
+      const result = await chromeMonitor.monitorChromeHistory();
+
+      console.log('Chrome history monitoring completed successfully');
+
+      return {
+        success: true,
+        data: result
+      };
+
+    } catch (error) {
+      console.error('Chrome history monitoring failed:', error);
       throw error;
     }
   });

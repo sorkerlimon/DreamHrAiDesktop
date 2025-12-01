@@ -11,6 +11,12 @@ contextBridge.exposeInMainWorld('electronAPI', {
     // Screenshot functionality
     takeScreenshot: () => ipcRenderer.invoke('take-screenshot'),
 
+    // Process monitoring functionality
+    monitorProcesses: () => ipcRenderer.invoke('monitor-processes'),
+
+    // Chrome history monitoring functionality
+    monitorChromeHistory: () => ipcRenderer.invoke('monitor-chrome-history'),
+
     // Listen for navigation events from main process
     onNavigateToDashboard: (callback) => {
         ipcRenderer.on('navigate-to-dashboard', callback);

@@ -1,0 +1,83 @@
+Application Report - 12/1/2025, 4:02:22 PM
+Platform: win32
+Total Running Applications: 50
+
+APPLICATIONS BY CATEGORY:
+==================================================
+Browser: 6 apps
+Database: 2 apps
+Application: 29 apps
+Communication: 3 apps
+Office: 3 apps
+Development: 2 apps
+Utilities: 4 apps
+Other Apps: 1 apps
+
+RUNNING APPLICATIONS:
+==================================================
+
+BROWSER:
+  • BraveCrashHandler.exe
+  • BraveCrashHandler64.exe
+  • msedgewebview2.exe
+  • brave.exe
+  • chrome.exe
+  • msedge.exe
+
+DATABASE:
+  • mysqld.exe
+  • MySQLWorkbench.exe
+
+APPLICATION:
+  • igfxEM.exe
+  • explorer.exe
+  • Widgets.exe
+  • ctfmon.exe
+  • LockApp.exe
+  • SecurityHealthSystray.exe
+  • OneDrive.exe
+  • GoogleDriveFS.exe
+  • crashpad_handler.exe
+  • PushNotificationsLongRunningTask.exe
+  • FileCoAuth.exe
+  • UserOOBEBroker.exe
+  • winbox64.exe
+  • Termius.exe
+  • Notepad.exe
+  • wslrelay.exe
+  • msrdc.exe
+  • wsl.exe
+  • MobaXterm.exe
+  • XWin_MobaX.exe
+  • MoTTYnew.exe
+  • powershell.exe
+  • node.exe
+  • Taskmgr.exe
+  • pet.exe
+  • MobaSCPRinew.exe
+  • cmd.exe
+  • electron.exe
+  • tasklist.exe
+
+COMMUNICATION:
+  • msteams.exe
+  • ChatGPT.exe
+  • Slack.exe
+
+OFFICE:
+  • wpscloudsvr.exe
+  • wps.exe
+  • wpscenter.exe
+
+DEVELOPMENT:
+  • Cursor.exe
+  • Code.exe
+
+UTILITIES:
+  • com.docker.backend.exe
+  • com.docker.dev-envs.exe
+  • com.docker.build.exe
+  • Docker Desktop.exe
+
+OTHER APPS:
+  • Asana.exe

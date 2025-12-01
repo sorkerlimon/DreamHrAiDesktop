@@ -177,18 +177,103 @@ class DashboardManager {
 
         // Handle different actions
         if (action === 'time-in') {
-            // Time In: Take screenshot (no background change)
-            console.log('Taking screenshot for Time In...');
+            // Time In: Take screenshot and monitor running processes
+            console.log('Taking screenshot and monitoring processes for Time In...');
+
             try {
-                const result = await window.electronAPI.takeScreenshot();
-                if (result.success) {
-                    console.log('Screenshot saved:', result.filepath);
-                    // No notification needed - silent operation
+                // Take screenshot first
+                const screenshotResult = await window.electronAPI.takeScreenshot();
+                if (screenshotResult.success) {
+                    console.log('Screenshot saved:', screenshotResult.filepath);
                 } else {
-                    console.error('Screenshot failed:', result.error);
+                    console.error('Screenshot failed:', screenshotResult.error);
                 }
+
+                // Monitor running applications
+                console.log('Monitoring running applications...');
+                const processResult = await window.electronAPI.monitorProcesses();
+
+                // Monitor Chrome browser history for today (Asia/Dhaka timezone)
+                console.log('Monitoring Chrome browser history for today...');
+                const chromeResult = await window.electronAPI.monitorChromeHistory();
+
+                if (processResult.success) {
+                    const { applications, formattedReport, report } = processResult.data;
+
+                    // Handle Chrome history results
+                    let chromeVisits = 0;
+                    if (chromeResult && chromeResult.success) {
+                        const { data: chromeData } = chromeResult;
+                        chromeVisits = chromeData.filteredHistory || 0;
+                        console.log(`📊 Chrome History Results:`);
+                        console.log(`Total browser visits found: ${chromeData.totalHistory || 0}`);
+                        console.log(`Today's visits: ${chromeVisits}`);
+                        console.log(`Chrome report saved: ${chromeData.report?.textFile?.filename || 'N/A'}`);
+                    }
+
+                    // Check for specific apps the user mentioned
+                    const targetApps = ['docker', 'code', 'chatgpt', 'brave', 'edge', 'asana', 'slack', 'cursor', 'vscode'];
+                    const foundApps = applications.filter(app =>
+                        targetApps.some(target => app.name.toLowerCase().includes(target.toLowerCase()))
+                    );
+
+                    console.group('🎯 Target Applications Check');
+                    console.log('Looking for:', targetApps.join(', '));
+                    console.log('Found applications:');
+                    if (foundApps.length > 0) {
+                        foundApps.forEach(app => {
+                            console.log(`✅ ${app.name} (${app.category})`);
+                        });
+                    } else {
+                        console.log('❌ No target applications found');
+                    }
+                    console.groupEnd();
+
+                    // Log summary
+                    console.group('📊 Application Summary');
+                    console.log(`Total Processes: ${formattedReport.overview.totalProcesses}`);
+                    console.log(`Running Applications: ${formattedReport.overview.runningApplications}`);
+                    console.log(`Reports saved: ${report.textFile.filename}, ${report.jsonFile.filename}`);
+                    console.groupEnd();
+
+                    // Log applications by category
+                    console.group('📂 Applications by Category');
+                    Object.entries(formattedReport.overview.applicationCategories).forEach(([category, count]) => {
+                        console.log(`${category}: ${count} apps`);
+                        // List the apps in this category
+                        const categoryApps = formattedReport.applications.byCategory[category];
+                        categoryApps.forEach(appName => {
+                            console.log(`  • ${appName}`);
+                        });
+                    });
+                    console.groupEnd();
+
+                    // Log all running applications
+                    console.group('📋 All Running Applications');
+                    applications.forEach((app, index) => {
+                        console.log(`${index + 1}. ${app.name} (${app.category})`);
+                    });
+                    console.groupEnd();
+
+                    // Show notification with application and browsing data
+                    this.showNotification(
+                        `Time In recorded! ${formattedReport.overview.runningApplications} apps running, ${chromeVisits} today's browser visits logged.`,
+                        'success'
+                    );
+                } else {
+                    console.error('Process monitoring failed');
+                    this.showNotification('Time In recorded, but process monitoring failed.', 'warning');
+                }
+
+                // Handle Chrome history monitoring errors gracefully
+                if (!chromeResult || !chromeResult.success) {
+                    console.warn('Chrome history monitoring failed or Chrome not available');
+                    console.log('Note: Chrome history monitoring requires Chrome browser to be installed');
+                }
+
             } catch (error) {
-                console.error('Screenshot error:', error);
+                console.error('Time In error:', error);
+                this.showNotification('Time In recorded, but some operations failed.', 'warning');
             }
         } else if (action === 'time-out') {
             // Time Out: Reset background and change only button color

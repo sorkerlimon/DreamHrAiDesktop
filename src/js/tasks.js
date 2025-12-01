@@ -4,14 +4,19 @@ class TaskManager {
     constructor() {
         this.tasks = [];
         this.filteredTasks = [];
+        this.currentFilter = 'all';
+        this.currentSearch = '';
+        this.isLoading = false;
         this.init();
     }
 
     init() {
+        this.showLoadingState();
         this.loadSampleTasks();
         this.setupEventListeners();
         this.updateStats();
         this.renderTasks();
+        this.hideLoadingState();
     }
 
     loadSampleTasks() {
@@ -78,24 +83,90 @@ class TaskManager {
     }
 
     setupEventListeners() {
-        document.getElementById('addTaskBtn').addEventListener('click', () => this.showAddTaskModal());
-        document.getElementById('searchInput').addEventListener('input', () => this.applyFilters());
-        document.getElementById('statusFilter').addEventListener('change', () => this.applyFilters());
+        document.getElementById('searchInput').addEventListener('input', (e) => this.handleSearch(e));
+        document.getElementById('statusFilter').addEventListener('change', (e) => this.handleFilter(e));
+
+        // Add keyboard shortcuts
+        document.addEventListener('keydown', (e) => this.handleKeyboardShortcuts(e));
+
+        // Add smooth scrolling for better UX
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(anchor.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    }
+
+    handleKeyboardShortcuts(e) {
+        // Escape to close modals
+        if (e.key === 'Escape') {
+            const modal = document.querySelector('.modal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+    }
+
+    handleSearch(e) {
+        this.currentSearch = e.target.value.toLowerCase().trim();
+        this.debounce(() => this.applyFilters(), 300);
+    }
+
+    handleFilter(e) {
+        this.currentFilter = e.target.value;
+        this.applyFilters();
+    }
+
+    debounce(func, wait) {
+        clearTimeout(this.debounceTimer);
+        this.debounceTimer = setTimeout(func, wait);
     }
 
     applyFilters() {
-        const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-        const statusFilter = document.getElementById('statusFilter').value;
+        this.showLoadingState();
 
-        this.filteredTasks = this.tasks.filter(task => {
-            const matchesSearch = task.title.toLowerCase().includes(searchTerm) ||
-                                task.description.toLowerCase().includes(searchTerm);
-            const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+        setTimeout(() => {
+            this.filteredTasks = this.tasks.filter(task => {
+                const matchesSearch = !this.currentSearch ||
+                    task.title.toLowerCase().includes(this.currentSearch) ||
+                    task.description.toLowerCase().includes(this.currentSearch);
+                const matchesStatus = this.currentFilter === 'all' || task.status === this.currentFilter;
 
-            return matchesSearch && matchesStatus;
-        });
+                return matchesSearch && matchesStatus;
+            });
 
-        this.renderTasks();
+            this.renderTasks();
+            this.hideLoadingState();
+        }, 150); // Small delay for better UX
+    }
+
+    showLoadingState() {
+        this.isLoading = true;
+        const tasksGrid = document.getElementById('tasksGrid');
+        const existingLoader = tasksGrid.querySelector('.loading-spinner');
+
+        if (!existingLoader) {
+            const loader = document.createElement('div');
+            loader.className = 'loading-spinner';
+            loader.innerHTML = `
+                <div class="spinner"></div>
+                <p>Loading tasks...</p>
+            `;
+            tasksGrid.innerHTML = '';
+            tasksGrid.appendChild(loader);
+        }
+    }
+
+    hideLoadingState() {
+        this.isLoading = false;
+        const loader = document.querySelector('.loading-spinner');
+        if (loader) {
+            loader.remove();
+        }
     }
 
     updateStats() {
@@ -186,10 +257,13 @@ class TaskManager {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
 
+        const taskCard = document.querySelector(`[data-id="${taskId}"]`);
+
         switch (action) {
             case 'start':
                 task.status = 'progress';
                 task.startTime = new Date().toISOString();
+                this.animateTaskCard(taskCard, 'pulse');
                 this.showNotification('Task started successfully!', 'success');
                 break;
 
@@ -197,6 +271,7 @@ class TaskManager {
                 task.status = 'complete';
                 task.endTime = new Date().toISOString();
                 task.progress = 100;
+                this.animateTaskCard(taskCard, 'bounce');
                 this.showNotification('Task completed successfully!', 'success');
                 break;
 
@@ -205,17 +280,54 @@ class TaskManager {
                 return; // Don't update stats/render yet
 
             case 'delete':
-                if (confirm('Are you sure you want to delete this task?')) {
-                    this.tasks = this.tasks.filter(t => t.id !== taskId);
-                    this.showNotification('Task deleted successfully!', 'success');
-                } else {
-                    return;
-                }
-                break;
+                this.confirmDelete(task, taskCard);
+                return;
         }
 
         this.updateStats();
         this.applyFilters(); // Re-render with current filters
+    }
+
+    animateTaskCard(card, animation) {
+        if (!card) return;
+
+        card.style.animation = 'none';
+        setTimeout(() => {
+            card.style.animation = `${animation} 0.6s ease-out`;
+        }, 10);
+
+        setTimeout(() => {
+            card.style.animation = '';
+        }, 600);
+    }
+
+    confirmDelete(task, card) {
+        // Create a modern confirmation modal
+        const modal = document.createElement('div');
+        modal.className = 'modal confirm-modal';
+        modal.innerHTML = `
+            <div class="modal-content confirm-content">
+                <h3>Delete Task</h3>
+                <p>Are you sure you want to delete "<strong>${task.title}</strong>"? This action cannot be undone.</p>
+                <div class="form-actions">
+                    <button type="button" onclick="this.closest('.modal').remove()">Cancel</button>
+                    <button type="button" class="delete-confirm-btn">Delete Task</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+
+        modal.querySelector('.delete-confirm-btn').addEventListener('click', () => {
+            card.classList.add('removed');
+            setTimeout(() => {
+                this.tasks = this.tasks.filter(t => t.id !== task.id);
+                this.showNotification('Task deleted successfully!', 'success');
+                this.updateStats();
+                this.applyFilters();
+            }, 300);
+            modal.remove();
+        });
     }
 
     showAddTaskModal() {
@@ -280,11 +392,22 @@ class TaskManager {
     }
 
     saveTask(existingTask) {
+        // Clear previous validation errors
+        this.clearValidationErrors();
+
         const title = document.getElementById('taskTitle').value.trim();
         const description = document.getElementById('taskDesc').value.trim();
         const priority = document.getElementById('taskPriority').value;
         const status = document.getElementById('taskStatus').value;
         const progress = parseInt(document.getElementById('taskProgress').value) || 0;
+
+        // Validate form
+        const errors = this.validateTaskForm(title, description, progress);
+
+        if (errors.length > 0) {
+            this.showValidationErrors(errors);
+            return;
+        }
 
         if (existingTask) {
             // Update existing task
@@ -315,6 +438,63 @@ class TaskManager {
         this.applyFilters();
     }
 
+    validateTaskForm(title, description, progress) {
+        const errors = [];
+
+        if (!title) {
+            errors.push({ field: 'taskTitle', message: 'Task title is required' });
+        } else if (title.length < 3) {
+            errors.push({ field: 'taskTitle', message: 'Task title must be at least 3 characters long' });
+        } else if (title.length > 100) {
+            errors.push({ field: 'taskTitle', message: 'Task title must be less than 100 characters' });
+        }
+
+        if (!description) {
+            errors.push({ field: 'taskDesc', message: 'Task description is required' });
+        } else if (description.length < 10) {
+            errors.push({ field: 'taskDesc', message: 'Task description must be at least 10 characters long' });
+        }
+
+        if (isNaN(progress) || progress < 0 || progress > 100) {
+            errors.push({ field: 'taskProgress', message: 'Progress must be a number between 0 and 100' });
+        }
+
+        return errors;
+    }
+
+    showValidationErrors(errors) {
+        errors.forEach(error => {
+            const field = document.getElementById(error.field);
+            if (field) {
+                field.style.borderColor = '#ef4444';
+                field.style.boxShadow = '0 0 0 3px rgba(239, 68, 68, 0.1)';
+
+                // Add error message
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'field-error';
+                errorDiv.textContent = error.message;
+                field.parentNode.appendChild(errorDiv);
+            }
+        });
+
+        this.showNotification('Please fix the errors in the form', 'error');
+    }
+
+    clearValidationErrors() {
+        // Clear field styles
+        const fields = ['taskTitle', 'taskDesc', 'taskProgress'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.style.borderColor = '';
+                field.style.boxShadow = '';
+            }
+        });
+
+        // Remove error messages
+        document.querySelectorAll('.field-error').forEach(error => error.remove());
+    }
+
     formatDate(dateString) {
         return new Date(dateString).toLocaleDateString('en-US', {
             month: 'short',
@@ -335,25 +515,42 @@ class TaskManager {
     }
 
     showNotification(message, type = 'info') {
+        // Remove existing notifications
+        const existingNotifications = document.querySelectorAll('.notification');
+        existingNotifications.forEach(notif => notif.remove());
+
         const notification = document.createElement('div');
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: ${type === 'success' ? 'rgba(46, 204, 113, 0.95)' : 'rgba(102, 126, 234, 0.95)'};
-            color: white;
-            padding: 15px 20px;
-            border-radius: 5px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            z-index: 1000;
-            font-weight: 500;
+        notification.className = `notification notification-${type}`;
+
+        const icon = this.getNotificationIcon(type);
+        notification.innerHTML = `
+            <div class="notification-content">
+                <span class="notification-icon">${icon}</span>
+                <span class="notification-message">${message}</span>
+                <button class="notification-close" onclick="this.parentElement.parentElement.remove()">&times;</button>
+            </div>
         `;
-        notification.textContent = message;
+
         document.body.appendChild(notification);
 
+        // Animate in
+        setTimeout(() => notification.classList.add('show'), 10);
+
+        // Auto remove
         setTimeout(() => {
-            notification.remove();
-        }, 3000);
+            notification.classList.remove('show');
+            setTimeout(() => notification.remove(), 300);
+        }, 4000);
+    }
+
+    getNotificationIcon(type) {
+        const icons = {
+            success: '✓',
+            error: '✕',
+            warning: '⚠',
+            info: 'ℹ'
+        };
+        return icons[type] || icons.info;
     }
 }
 
